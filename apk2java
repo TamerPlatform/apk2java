@@ -7,7 +7,7 @@ echo "This is a script created by Anant Shrivastava"
 echo "http://anantshri.info"
 echo "Designed and Tested on Android Tamer"
 echo "This script will work on automating the work of extracting the source code out from the apk file"
-if [ $1 == "--help" -o $1 == "-help" ]
+if [[ $# -eq 0 || $1 == "--help" || $1 == "-help" ]]
 	then
 	echo ""
 	echo "$0 APK_FILE_NAME"
@@ -36,6 +36,14 @@ then
 	echo "Only APK's allowed"
 	exit
 fi
+
+#Checks if the file exists.
+if [ ! -f "$FULL_PTH" ]
+then
+        echo "File not found."
+        exit
+fi
+
 echo "Creating Output Directory"
 mkdir -p "$SRC_DIR"
 ls -l
