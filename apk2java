@@ -36,6 +36,14 @@ then
 	echo "Only APK's allowed"
 	exit
 fi
+
+#Checks if the file exists.
+if [ ! -f "$FULL_PTH" ]
+then
+        echo "File not found."
+        exit
+fi
+
 echo "Creating Output Directory"
 mkdir -p "$SRC_DIR"
 ls -l
