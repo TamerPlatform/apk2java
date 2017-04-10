@@ -2,6 +2,7 @@
 # this requires executables besides JRE
 # apktool,enjarify,jad, jadx
 # Script designed and Tested on Android Tamer (https://androidtamer.com) 
+
 echo "APK TO JAVA source code extraction script"
 echo "This is a script created by Anant Shrivastava"
 echo "http://anantshri.info"
@@ -10,70 +11,72 @@ echo "This script will work on automating the work of extracting the source code
 if [[ $# -eq 0 || $1 == "--help" || $1 == "-help" ]]
 	then
 	echo ""
-	echo "$0 APK_FILE_NAME"
+	echo "$0 APK_FILE_NAME DESTINATION"
 	exit 
 fi
-echo "Starting APK Decompile"
+echo "[*] Starting APK Decompile"
 # JAR KEEP is a variable which allows you to keep jar file converted using dex2jar.
 # 0 is off
 # 1 is on
 JAR_KEEP=1
-echo $0 $1
-echo "$@"
-echo "APK to JAVA/SRC conversion Utility"
-APK_NAME=`basename $1`
-c=`basename $APK_NAME .apk`
-FULL_PTH=`readlink -f $1`
+APK_NAME=`basename "$1"`
+c=`basename "$APK_NAME" .apk`
+FULL_PTH=`readlink -f "$1"`
 CDIR=`dirname "$FULL_PTH"`
-SRC_DIR=$CDIR"/"$APK_NAME"_src/"
-SRC_PATH=$CDIR"/"$APK_NAME"_src/"
-echo $c
-echo $APK_NAME
-echo "FULL_PATH"$FULL_PTH
-echo "CDIR"$CDIR
-if [ $c == `basename $APK_NAME` ]
+
+if [[ $# -eq 2 ]]
 then
-	echo "Only APK's allowed"
+	if [[ "$2" != /* ]]
+	then
+		# Relative path
+		SRC_DIR="$CDIR"/"$2"/"$APK_NAME""_src/"
+	else
+		SRC_DIR=$2"/"$APK_NAME"_src/"
+	fi
+else
+	SRC_DIR=$CDIR"/"$APK_NAME"_src/"
+fi
+
+if [[ "$c" == `basename "$APK_NAME"` ]]
+then
+	echo "[-] Only APK's allowed. Exiting."
 	exit
 fi
 
 #Checks if the file exists.
 if [ ! -f "$FULL_PTH" ]
 then
-        echo "File not found."
+        echo "[-] File not found. Exiting."
         exit
 fi
 
-echo "Creating Output Directory"
+echo "[*] Creating Output Directory"
 mkdir -p "$SRC_DIR"
-ls -l
-echo "Extracting files via APKTool"
+
+echo "[*] Extracting files via APKTool"
 apktool decode -f "$CDIR/$APK_NAME" -o "$SRC_DIR"
+
+echo "[*] Enjarify for decoding back to java classes."
 mkdir -p "$SRC_DIR"jar
-# Dex2 JAR was used earlier
-#echo "Dex2jar conversion and extraction"
-#$PTH/dex2jar.sh $CDIR"/"$APK_NAME 
-#Removing dex2jar
-#d2j-dex2jar.sh $CDIR"/"$APK_NAME 
-#echo "jar file name is "$c"_dex2jar.jar"
-#mv $CDIR"/"$c"_dex2jar.jar" $SRC_DIR"/jar/"
-echo "Enjarify for decoding back to java classes"
-JAR_FILE=$SRC_DIR"/jar/"$c"_enjarify.jar"
-enjarify -f "$CDIR/$APK_NAME" -o  "$JAR_FILE"
-echo "Decompiling via JADX Decompiler"
+JAR_FILE="$SRC_DIR""/jar/""$c""_enjarify.jar"
+enjarify -f "$CDIR""/$APK_NAME" -o  "$JAR_FILE"
+
+echo "[*] Decompiling via JADX Decompiler"
 cd "$SRC_DIR"/jar
 mkdir -p ../src/jadx
-jadx -d ../src/jadx $SRC_DIR"/jar/"$c"_enjarify.jar"
-jar -xf $c"_enjarify.jar"
-echo "Source Extraction via JAD from class files"
+jadx -d ../src/jadx "$SRC_DIR""/jar/""$c""_enjarify.jar"
+jar -xf "$c""_enjarify.jar"
+
+echo "[*] Source Extraction via JAD from class files"
 jad -o -r -sjava -d../src/jad './**/*.class'
+
 if [ $JAR_KEEP -eq 0 ]
 then
-  echo "removing jar file" 
-	rm -rf $c"_enjarify.jar"
+  	echo "[*] Removing jar file." 
+	rm -rf "$c""_enjarify.jar"
 	cd ..
 	rm -rf ./jar
 fi 
 ls -l "$SRC_DIR"
 cd "$CDIR"
-echo "All Done"
+echo "[*] All Done"
