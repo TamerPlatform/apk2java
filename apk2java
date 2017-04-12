@@ -29,12 +29,12 @@ then
 	if [[ "$2" != /* ]]
 	then
 		# Relative path
-		SRC_DIR="$CDIR"/"$2"/"$APK_NAME""_src/"
+		SRC_DIR="$PWD"/"$2"/"$APK_NAME""_src/"
 	else
 		SRC_DIR=$2"/"$APK_NAME"_src/"
 	fi
 else
-	SRC_DIR=$CDIR"/"$APK_NAME"_src/"
+	SRC_DIR="$PWD/$APK_NAME""_src/"
 fi
 
 if [[ "$c" == `basename "$APK_NAME"` ]]
