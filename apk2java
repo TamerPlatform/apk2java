@@ -22,7 +22,7 @@ JAR_KEEP=1
 APK_NAME=`basename "$1"`
 c=`basename "$APK_NAME" .apk`
 FULL_PTH=`readlink -f "$1"`
-CDIR=`dirname "$FULL_PTH"`
+APK_DIR_PATH=`dirname "$FULL_PTH"`
 
 if [[ $# -eq 2 ]]
 then
@@ -54,12 +54,12 @@ echo "[*] Creating Output Directory"
 mkdir -p "$SRC_DIR"
 
 echo "[*] Extracting files via APKTool"
-apktool decode -f "$CDIR/$APK_NAME" -o "$SRC_DIR"
+apktool decode -f "$APK_DIR_PATH/$APK_NAME" -o "$SRC_DIR"
 
 echo "[*] Enjarify for decoding back to java classes."
 mkdir -p "$SRC_DIR"jar
 JAR_FILE="$SRC_DIR""/jar/""$c""_enjarify.jar"
-enjarify -f "$CDIR""/$APK_NAME" -o  "$JAR_FILE"
+enjarify -f "$APK_DIR_PATH""/$APK_NAME" -o  "$JAR_FILE"
 
 echo "[*] Decompiling via JADX Decompiler"
 cd "$SRC_DIR"/jar
@@ -78,5 +78,5 @@ then
 	rm -rf ./jar
 fi 
 ls -l "$SRC_DIR"
-cd "$CDIR"
+cd "$APK_DIR_PATH"
 echo "[*] All Done"
